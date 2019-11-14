@@ -19,20 +19,35 @@ class App {
     }
 
     socketConfig(): void {
-        this.io.on(client_events.CONNECTION, (socket: any) => this.onConnection(socket))
+        this.io.on(client_events.CONNECTION, (socket: any) => {
+            this.onConnection(socket);
+            this.authenticate(socket)
+            .then(result => this.socketSubsctiption(socket))
+            .catch(err => { console.log('ununique paricipant!') });
+        })
     }
 
     onConnection(socket: any){
         socket.emit(server_events.CONNECTED, { message: `Welcome participiant ${socket.id}!`});
-        this.authenticate(socket);
     }
 
     authenticate(socket: any){
-        socket.on(client_events.AUTHENTICATE, (data: any)=> {
-            const participiant = data as IParticipant;
-            this.addParticipant(participiant, socket.id);
-            this.socketSubsctiption(socket);
-        });
+        return new Promise( (resolve, reject) => {
+            socket.on(client_events.AUTHENTICATE, (data: any)=> {
+                const participiant = data as IParticipant;
+                this.addParticipant(participiant, socket.id);
+                if(this.isLoginUnique(participiant.login)){
+                    resolve();
+                }
+                reject();
+            });
+        })
+    }
+
+    isLoginUnique(login: string): boolean{
+        return ![...this.participants.values()]
+                .map(x => x.login)
+                .includes(login);
     }
 
     socketSubsctiption(socket: any){
