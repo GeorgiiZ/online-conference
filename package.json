@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p .",
-    "server": "ts-node ./src/index.ts",
+    "serve": "ts-node ./src/index.ts",
     "test": "ts-node ./src/test-socket.ts"
   },
   "keywords": [],

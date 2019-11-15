@@ -8,14 +8,14 @@ class App {
     app: Application;
     http: Server;
     io: any; 
-    public participants: Map<string, IParticipant>;
+    public participants: Map<any, IParticipant>;
     public confTheme: string = '';
 
     constructor(app: Application, http: Server, io: any) {
         this.app = app;
         this.http = http;
         this.io = io;
-        this.participants = new Map<string, IParticipant>();
+        this.participants = new Map<any, IParticipant>();
         this.socketConfig();
     }
 
@@ -25,7 +25,7 @@ class App {
                 const { participant, confTheme } = <any> await this.authenticate(socket);
                 this.setConfData(participant, confTheme);
                 this.onAuthenticated(socket);
-                this.addParticipant(participant, socket.id);
+                this.addParticipant(participant, socket);
                 this.socketSubsctiption(socket);
             } catch(err) {
                 console.log('ununique paricipant!')
@@ -69,33 +69,37 @@ class App {
         })
 
         socket.on(client_events.DISCONNECT, () => {
-            console.log('user disconnected');
-            this.removeParticipant(socket.id);
-            const participant = this.participants.get(socket.id);
-            // if((<IParticipant>participant).isCreator){
-            //     this.participants.clear();
-            // }
+            this.removeParticipant(socket);
         });
     }
 
-    addParticipant(participant: IParticipant, socketId: string){
-        this.participants.set(socketId, participant);
+    addParticipant(participant: IParticipant, socket: any){
+        this.participants.set(socket, participant);
         this.updateParticipants(this.participants);
     }
 
-    removeParticipant(socketId: string){
-        this.participants.delete(socketId);
+    removeParticipant(socket: any){
+        const participant = this.participants.get(socket);
+        if((<IParticipant>participant).isCreator){
+            this.removeAllParticipants();
+        }
+        this.participants.delete(socket);
         this.updateParticipants(this.participants);
     }
 
-    updateParticipants(participants: Map<string,IParticipant>){
+    removeAllParticipants(){
+        [...this.participants.keys()].forEach(socket => socket.disconnect(true));
+        this.participants.clear();
+    }
+
+    updateParticipants(participants: Map<any, IParticipant>){
         const dat = [ ...participants.values() ];
         this.io.emit(server_events.PARTICIPANTS_UPDATED,  dat);
         console.log(dat);
     }
 
     broadcastMessage(socket: any, message: string){
-        const sender = this.participants.get(socket.id);
+        const sender = this.participants.get(socket);
         const messageObj: IMessage = <IMessage>{ sender, text: message };
         socket.broadcast.emit(server_events.RECIVE_MESSAGE, messageObj);
     }
