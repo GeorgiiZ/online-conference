@@ -3,13 +3,17 @@
         <div class="menu__icon" @click="isActivated=!isActivated"/>
         <div class="menu__content">
             <span class="menu__content-header">Участники:</span>
-            <span 
-                class="menu__content-participant"
-                v-for="(paricipant, key) in participants"  
-                :key="key"
-            >
-                {{ paricipant.login }}
-            </span>
+            <div class=menu__content-participants>
+                <div 
+                    class="menu__content-participant"
+                    v-for="(paricipant, key) in participants"  
+                    :key="key"
+                >
+                    <img class="person-icon" :src="getAvatarUrl(paricipant)"/>
+                    {{ paricipant.login }}
+                </div>
+            </div>
+            
         </div>
     </div>
 </template>
@@ -23,6 +27,11 @@ export default class chatMenu extends Vue {
     @Prop() participants:  IParticipant [];
 
     isActivated: boolean = false;
+
+    getAvatarUrl(participant: IParticipant) {
+        const img = participant.isCreator ? 'creator.png' : 'participant3.png';
+        return require('../../assets/'+ img);
+    }
 }
 
 </script>
@@ -92,15 +101,28 @@ export default class chatMenu extends Vue {
                 border-right: 10px solid transparent;
             }     
 
+            &-participants{
+                overflow-y: auto;
+            }
+
             &-participant{
                 display: flex;
-                border-top: #bebebe solid 1px;
-                padding: 15px 10px;
+                padding: 25px 40px;;
+                position: relative;
+
+                .person-icon{
+                    position: absolute;
+                    top: 15px;
+                    left: 5px;
+                    width: 35px;
+                    height: 35px;;
+                }
             }
 
             &-header{
-                padding: 10px;
+                padding: 15px;
                 text-align: start;
+                border-bottom:  #bebebe solid 1px;
             }
         }
 

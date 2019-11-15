@@ -68,10 +68,6 @@ export default class chatMain extends Vue {
         return this.socketService && this.socketService.participants;
     }
 
-    // get isThemeDisabled(){
-    //     return !(this.socketService && this.socketService.participants.size);
-    // }
-
     sendMessage(message: string){
         this.socketService.sendMessage(message);
         this.inputMessage = '';

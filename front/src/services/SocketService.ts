@@ -43,10 +43,15 @@ class SocketService {
         socket.on(server_events.RECIVE_MESSAGE, (message: any) => {
             this.onMessageRecive(message);
         });
+
+        socket.on(client_events.DISCONNECT, (message: any) => {
+            //this.onMessageRecive(message);
+        });
     }
 
     authenticate(socket: any, user: IParticipant, confTheme: string){
         socket.emit(client_events.AUTHENTICATE, { participant: user, confTheme });
+        console.log(socket);
     }
 
     onParticipantsUpdated(participiants: any){
