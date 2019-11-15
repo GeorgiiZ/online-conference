@@ -4,7 +4,7 @@
             <div
                 class="chat__header-chatname"
             >
-                {{ chatName }}
+                {{ confTheme }}
                 <div class="chat__header-online"/>
             </div>
             <chatMenu 
@@ -56,7 +56,9 @@ export default class chatMain extends Vue {
 
     participant: IParticipant = null;
 
-    chatName: string = "Some chat"
+    get confTheme(): string{
+        return this.socketService && this.socketService.confTheme;
+    }
 
     get messages(): IMessage{
         return this.socketService && this.socketService.messages;
@@ -66,18 +68,21 @@ export default class chatMain extends Vue {
         return this.socketService && this.socketService.participants;
     }
 
+    // get isThemeDisabled(){
+    //     return !(this.socketService && this.socketService.participants.size);
+    // }
+
     sendMessage(message: string){
         this.socketService.sendMessage(message);
         this.inputMessage = '';
     }
 
     onEntered(creadentials){
-        const { login } = creadentials;
+        const { login, confTheme } = creadentials;
         this.participant = {
             login, 
-            name: '' 
         }
-        this.socketService = new SocketService("http://localhost:3000", this.participant);
+        this.socketService = new SocketService("http://localhost:3000", this.participant, confTheme);
         this.isEntryOpen = false;
     }
 }

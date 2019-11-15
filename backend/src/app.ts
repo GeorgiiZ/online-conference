@@ -8,36 +8,49 @@ class App {
     app: Application;
     http: Server;
     io: any; 
-    public participants: Map<string,IParticipant>;
+    public participants: Map<string, IParticipant>;
+    public confTheme: string = '';
 
-    constructor(app: Application, http: Server, io: any){
+    constructor(app: Application, http: Server, io: any) {
         this.app = app;
         this.http = http;
         this.io = io;
-        this.participants= new Map<string, IParticipant>();
-        this.socketConfig()
+        this.participants = new Map<string, IParticipant>();
+        this.socketConfig();
     }
 
     socketConfig(): void {
-        this.io.on(client_events.CONNECTION, (socket: any) => {
-            this.onConnection(socket);
-            this.authenticate(socket)
-            .then(result => this.socketSubsctiption(socket))
-            .catch(err => { console.log('ununique paricipant!') });
+        this.io.on(client_events.CONNECTION, async (socket: any) => {
+            try {
+                const { participant, confTheme } = <any> await this.authenticate(socket);
+                this.setConfData(participant, confTheme);
+                this.onAuthenticated(socket);
+                this.addParticipant(participant, socket.id);
+                this.socketSubsctiption(socket);
+            } catch(err) {
+                console.log('ununique paricipant!')
+            } 
         })
     }
 
-    onConnection(socket: any){
-        socket.emit(server_events.CONNECTED, { message: `Welcome participiant ${socket.id}!`});
+    setConfData(participant: IParticipant, confTheme: string){
+        if(!this.participants.size){
+            participant.isCreator = true;
+            this.confTheme = confTheme;
+        }
     }
 
-    authenticate(socket: any){
+    onAuthenticated(socket: any) {
+        socket.emit(server_events.AUTHENTICATED, { confTheme: this.confTheme });
+    }
+
+    async authenticate(socket: any){
         return new Promise( (resolve, reject) => {
             socket.on(client_events.AUTHENTICATE, (data: any)=> {
-                const participiant = data as IParticipant;
-                this.addParticipant(participiant, socket.id);
-                if(this.isLoginUnique(participiant.login)){
-                    resolve();
+                console.log(data)
+                const { participant } = data;
+                if(this.isLoginUnique(participant.login)){
+                    resolve(data);
                 }
                 reject();
             });
@@ -58,6 +71,10 @@ class App {
         socket.on(client_events.DISCONNECT, () => {
             console.log('user disconnected');
             this.removeParticipant(socket.id);
+            const participant = this.participants.get(socket.id);
+            // if((<IParticipant>participant).isCreator){
+            //     this.participants.clear();
+            // }
         });
     }
 

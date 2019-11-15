@@ -2,6 +2,14 @@
     <div class="entry">
         <div class="entry-content">
             <div class="entry-content__caption">
+                <div class="entry-content__caption-paragraph">Задайте название:</div>
+                <input 
+                    type="text" 
+                    class="entry-input" 
+                    v-model="confTheme" 
+                    autocomplete="off" 
+                    required
+                />
                 <div class="entry-content__caption-paragraph">Придумайте логин:</div>
                 <input 
                     type="text" 
@@ -21,16 +29,19 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component
 export default class modalEntry extends Vue{
 
+    @Prop() isThemeDisabled: boolean;
+
     login: string ='';
+    confTheme: string = '';
 
     modalClosed(): void {
         if(!this.login) return;
-        this.$emit('entered', { login: this.login });
+        this.$emit('entered', { login: this.login, confTheme: this.confTheme });
     }
 }
 </script>
@@ -57,7 +68,7 @@ export default class modalEntry extends Vue{
         box-shadow: 2px 10px 10px 0px #888;
 
         &__caption {
-            padding: 50px 20px;
+            padding: 20px 20px 40px 20px;
             height: 70%;
             display: flex;
             flex-direction: column;
@@ -68,6 +79,7 @@ export default class modalEntry extends Vue{
                 font-weight: bold;
             }
             &-paragraph {
+                margin-top: 15px; 
                 text-transform: uppercase;
                 line-height: 180%;
             }
@@ -103,11 +115,13 @@ export default class modalEntry extends Vue{
         border : none;
         padding: 10px;
         font-weight: bold;
-        margin-top: 15px;
+        margin-top: 10px;
 
         &:focus{
             outline: none;
         }
+
+        
     }
 }
 </style>

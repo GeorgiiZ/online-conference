@@ -1,7 +1,8 @@
 <template>
-    <div class="menu">
-        <div class="menu__icon"/>
+    <div :class="['menu', { 'menu--active' : isActivated }]">
+        <div class="menu__icon" @click="isActivated=!isActivated"/>
         <div class="menu__content">
+            <span class="menu__content-header">Участники:</span>
             <span 
                 class="menu__content-participant"
                 v-for="(paricipant, key) in participants"  
@@ -20,6 +21,8 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({})
 export default class chatMenu extends Vue {
     @Prop() participants:  IParticipant [];
+
+    isActivated: boolean = false;
 }
 
 </script>
@@ -29,7 +32,7 @@ export default class chatMenu extends Vue {
     .menu {
         position: relative;
 
-        &:hover {
+        &--active {
             opacity: 1;
 
             .menu__icon {
@@ -51,12 +54,18 @@ export default class chatMenu extends Vue {
             background-size: contain;
             background-position: center;
 
-            &:active {
+            &:hover {
                 opacity: 0.7;
+            }
+
+            &:active {
+                opacity: 1;
             }
         }
 
         &__content {
+            display: flex;
+            flex-direction: column;
             position: absolute;
             width: 300px;
             height: 300px;
@@ -64,7 +73,7 @@ export default class chatMenu extends Vue {
             right: -40px;
             background-color: #ffffff;   
             box-shadow: 3px 5px 10px rgba(35, 31, 32, 0.4);
-            border-radius: 5px;
+            border-radius: 15px;
             visibility: hidden;
             opacity: 0;
             transition: all 0.3s ease;
@@ -87,6 +96,11 @@ export default class chatMenu extends Vue {
                 display: flex;
                 border-top: #bebebe solid 1px;
                 padding: 15px 10px;
+            }
+
+            &-header{
+                padding: 10px;
+                text-align: start;
             }
         }
 
