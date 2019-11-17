@@ -21,10 +21,11 @@ class App {
 
     socketConfig(): void {
         this.io.on(client_events.CONNECTION, async (socket: any) => {
+            this.onConnected(socket);
             try {
                 const { participant, confTheme } = <any> await this.authenticate(socket);
                 this.setConfData(participant, confTheme);
-                this.onAuthenticated(socket);
+                this.onAuthenticated(socket, participant);
                 this.addParticipant(participant, socket);
                 this.socketSubsctiption(socket);
             } catch(err) {
@@ -40,9 +41,14 @@ class App {
         }
     }
 
-    onAuthenticated(socket: any) {
-        socket.emit(server_events.AUTHENTICATED, { confTheme: this.confTheme });
+    onConnected(socket: any) {
+        socket.emit(server_events.CONNECTED, { confTheme: this.confTheme });
     }
+
+    onAuthenticated(socket: any, participant: IParticipant){
+        socket.emit(server_events.AUTHENTICATED, { participant, confTheme: this.confTheme });
+    }
+
 
     async authenticate(socket: any){
         return new Promise( (resolve, reject) => {
@@ -90,6 +96,7 @@ class App {
     removeAllParticipants(){
         [...this.participants.keys()].forEach(socket => socket.disconnect(true));
         this.participants.clear();
+        this.confTheme = '';
     }
 
     updateParticipants(participants: Map<any, IParticipant>){
