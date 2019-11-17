@@ -7,20 +7,23 @@ import { client_events }  from "./client_events";
 class SocketService {
     host: string;
     socket: any;
-    user: IParticipant;
+    user: IParticipant | null = null;
     public confTheme: string = '';
     public messages: IMessage [] = [];
     public participants: IParticipant [] = [];
 
-    constructor(host: string, user: IParticipant, confTheme: string){
+    constructor(host: string){
         this.host = host;
-        this.user = user;
-        this.initConnection(user, confTheme);
+        this.initConnection();
     }
 
-    public initConnection(user: IParticipant, confTheme: string): void{
+    public initConnection(): void{
         this.socket = io(this.host);
-        this.authenticate(this.socket, this.user, confTheme);
+        this.setOnConnected(this.socket);
+    }
+
+    public joinConf(user: IParticipant, confTheme: string){
+        this.authenticate(this.socket, user, confTheme);
         this.subscriptionsConfig(this.socket, user);
     }
 
@@ -30,28 +33,42 @@ class SocketService {
         this.messages.push(<IMessage> { sender: this.user, text: message, selfMessage: true });
     }
 
-    subscriptionsConfig(socket: any, user: IParticipant): void {
-        socket.on(server_events.AUTHENTICATED, (data: any) => {
+    setOnConnected(socket: any){
+        socket.on(server_events.CONNECTED, (data: any) => {
             const { confTheme } = data;
             this.confTheme = confTheme;
+        });
+    }
+
+    subscriptionsConfig(socket: any, user: IParticipant): void {
+        socket.on(server_events.AUTHENTICATED, (data: any) => {
+            this.onAuthenticated(data);
         });
 
         socket.on(server_events.PARTICIPANTS_UPDATED, (participiants: any) => {
             this.onParticipantsUpdated(participiants);
-          });
+        });
 
         socket.on(server_events.RECIVE_MESSAGE, (message: any) => {
             this.onMessageRecive(message);
         });
+    }
 
-        socket.on(client_events.DISCONNECT, (message: any) => {
-            //this.onMessageRecive(message);
+    onDisconnect(callback: any){
+        this.socket.on(client_events.DISCONNECT, (message: any) => {
+            callback();
         });
     }
 
     authenticate(socket: any, user: IParticipant, confTheme: string){
         socket.emit(client_events.AUTHENTICATE, { participant: user, confTheme });
-        console.log(socket);
+        console.log(user)
+    }
+
+    onAuthenticated(data: any){
+        const { participant: user, confTheme: confTheme } = data;
+        this.user = user;
+        this.confTheme = confTheme;
     }
 
     onParticipantsUpdated(participiants: any){

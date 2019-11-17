@@ -57,15 +57,15 @@ export default class chatMain extends Vue {
     participant: IParticipant = null;
 
     get confTheme(): string{
-        return this.socketService && this.socketService.confTheme;
+        return this.socketService.confTheme;
     }
 
     get messages(): IMessage{
-        return this.socketService && this.socketService.messages;
+        return this.socketService.messages;
     }  
 
     get participants(): IParticipant [] {
-        return this.socketService && this.socketService.participants;
+        return this.socketService.participants;
     }
 
     sendMessage(message: string){
@@ -78,8 +78,19 @@ export default class chatMain extends Vue {
         this.participant = {
             login, 
         }
-        this.socketService = new SocketService("http://localhost:3000", this.participant, confTheme);
+        this.socketService.joinConf(this.participant, confTheme);
+        this.onDisconnect();
         this.isEntryOpen = false;
+    }
+
+    onDisconnect(){
+        this.socketService.onDisconnect(x => {
+            window.location.reload(false); 
+        });
+    }
+
+    created(){
+        this.socketService = new SocketService("http://localhost:3000");
     }
 }
 

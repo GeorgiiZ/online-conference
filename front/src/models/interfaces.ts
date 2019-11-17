@@ -6,7 +6,7 @@ interface IMessage {
 
 interface IParticipant {
     login: string;
-    name: string;
+    isCreator: boolean;
     avatar: string;
 }
 
