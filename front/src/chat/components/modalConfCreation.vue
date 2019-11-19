@@ -21,7 +21,7 @@
             </div>
             <div class="entry-content__submit">
                 <button class="entry-content__submit-btn" @click.prevent="modalClosed">
-                    присоедениться
+                    создать
                 </button>
             </div>
         </div>
@@ -32,9 +32,7 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component
-export default class modalEntry extends Vue{
-
-    @Prop() isThemeDisabled: boolean;
+export default class modalConfCreation extends Vue{
 
     login: string ='';
     confTheme: string = '';
@@ -68,7 +66,7 @@ export default class modalEntry extends Vue{
         box-shadow: 2px 10px 10px 0px #888;
 
         &__caption {
-            padding: 20px 20px 40px 20px;
+            padding: 20px 60px 40px 60px;
             height: 70%;
             display: flex;
             flex-direction: column;
@@ -113,15 +111,14 @@ export default class modalEntry extends Vue{
     &-input{
         background-color: #eee;
         border : none;
-        padding: 10px;
+        padding: 10px 0;
         font-weight: bold;
         margin-top: 10px;
+        width: 100%;
 
         &:focus{
             outline: none;
         }
-
-        
     }
 }
 </style>

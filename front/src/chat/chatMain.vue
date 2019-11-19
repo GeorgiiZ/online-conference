@@ -27,7 +27,14 @@
             />
             <button class="chat__send-button" @click.prevent="sendMessage(inputMessage)"/>
         </div>
-        <modalEntry v-if="isEntryOpen" @entered="onEntered"/>
+        <modalConfCreation 
+            v-if="isCreationOpen" 
+            @entered="onEntered"
+        />
+        <modalConfEnter 
+            v-if="isEnterOpen" 
+            :confList="confList"
+        />
     </div>
 </template>
 
@@ -35,7 +42,8 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import chatMessage from "@/chat/components/chatMessage.vue";
 import chatMenu from "@/chat/components/chatMenu.vue";
-import modalEntry from "@/chat/components/modalEntry.vue";
+import modalConfCreation from "@/chat/components/modalConfCreation.vue";
+import modalConfEnter from "@/chat/components/modalConfEnter.vue";
 
 import { IMessage, IParticipant } from '@/models/interfaces';
 import { SocketService } from "@/services/SocketService";
@@ -44,11 +52,16 @@ import { SocketService } from "@/services/SocketService";
     components: {
         chatMessage,
         chatMenu,
-        modalEntry
+        modalConfCreation,
+        modalConfEnter
     }
 })
 export default class chatMain extends Vue {
-    isEntryOpen: boolean = true;
+
+    isCreationOpen: boolean = false;
+    isEnterOpen: boolean = false;
+
+    confList: string [] = [];
 
     inputMessage: string = '';
 
@@ -80,7 +93,7 @@ export default class chatMain extends Vue {
         }
         this.socketService.joinConf(this.participant, confTheme);
         this.onDisconnect();
-        this.isEntryOpen = false;
+        this.isCreationOpen = false;
     }
 
     onDisconnect(){
@@ -89,8 +102,19 @@ export default class chatMain extends Vue {
         });
     }
 
+    openModal(){
+        if(this.confTheme){
+            this.isEnterOpen = true; 
+            this.confList = [ this.confTheme ];
+        } else {
+            this.isCreationOpen = true; 
+        }
+    }
+
     created(){
         this.socketService = new SocketService("http://localhost:3000");
+        //this.socketService.
+        this.openModal();
     }
 }
 
