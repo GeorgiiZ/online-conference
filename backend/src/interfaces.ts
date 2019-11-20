@@ -1,4 +1,5 @@
 interface IParticipant {
+    soket: any;
     login: string;
     isCreator: boolean;
     avatar: string;

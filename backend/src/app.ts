@@ -18,6 +18,7 @@ class App {
         this.io = io;
         this.participants = new Map<any, IParticipant>();
         this.socketConfig();
+        this.expressConfig();
     }
 
     expressConfig(): void{
@@ -26,11 +27,30 @@ class App {
         this.app.use(bodyParser.urlencoded({
             extended: true
         }));
+        this.routes();
+    }
+
+    routes():void {
+        this.app.get("/", (req, res) => {
+            res.send('hello world');
+        });
+
+        this.app.get("/conf_list", (req, res) =>{
+            console.log([ ...this.participants.keys() ]);
+            res.json([ ...this.participants.keys() ]);
+        });
+
+        this.app.post("/create_conf", (req, res) =>{
+            console.log(req.body)
+            const { conf } = req.body;
+            this.confTheme = conf;
+            this.io.of(conf);
+            res.json(this.confTheme);
+        });
     }
 
     socketConfig(): void {
         this.io.on(client_events.CONNECTION, async (socket: any) => {
-            console.log(socket)
             this.throwConnected(socket);
             try {
                 const { participant, confTheme } = <any> await this.authenticate(socket);
@@ -39,8 +59,8 @@ class App {
                 this.addParticipant(participant, socket);
                 this.socketSubsctiption(socket);
             } catch(err) {
-                console.log('ununique paricipant!')
-            } 
+                console.log(err)
+            }
         })
     }
 
@@ -67,7 +87,7 @@ class App {
                 if(this.isLoginUnique(participant.login)){
                     resolve(data);
                 }
-                reject();
+                reject('ununique paricipant!');
             });
         })
     }
