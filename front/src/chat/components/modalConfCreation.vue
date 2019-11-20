@@ -39,7 +39,7 @@ export default class modalConfCreation extends Vue{
 
     modalClosed(): void {
         if(!this.login) return;
-        this.$emit('entered', { login: this.login, confTheme: this.confTheme });
+        this.$emit('conf-created', { login: this.login, confTheme: this.confTheme });
     }
 }
 </script>

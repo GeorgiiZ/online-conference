@@ -29,11 +29,12 @@
         </div>
         <modalConfCreation 
             v-if="isCreationOpen" 
-            @entered="onEntered"
+            @conf-created="onConfCreated"
         />
         <modalConfEnter 
             v-if="isEnterOpen" 
             :confList="confList"
+            @entered="onEntered"
         />
     </div>
 </template>
@@ -86,14 +87,24 @@ export default class chatMain extends Vue {
         this.inputMessage = '';
     }
 
-    onEntered(creadentials){
+    async onConfCreated(creadentials){
         const { login, confTheme } = creadentials;
         this.participant = {
             login, 
         }
-        this.socketService.joinConf(this.participant, confTheme);
+        await this.socketService.joinConf(this.participant, confTheme);
         this.onDisconnect();
         this.isCreationOpen = false;
+    }
+
+    async onEntered(creadentials){
+        const { login, confTheme } = creadentials;
+        this.participant = {
+            login, 
+        }
+        await this.socketService.joinConf(this.participant, confTheme);
+        this.onDisconnect();
+        this.isEnterOpen = false;
     }
 
     onDisconnect(){
@@ -111,9 +122,9 @@ export default class chatMain extends Vue {
         }
     }
 
-    created(){
+    async created(){
         this.socketService = new SocketService("http://localhost:3000");
-        //this.socketService.
+        await this.socketService.initConnection();
         this.openModal();
     }
 }

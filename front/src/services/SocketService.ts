@@ -14,16 +14,16 @@ class SocketService {
 
     constructor(host: string){
         this.host = host;
-        this.initConnection();
+        //this.initConnection();
     }
 
-    public initConnection(): void{
+    public async initConnection(){
         this.socket = io(this.host);
-        this.setOnConnected(this.socket);
+        await this.setOnConnected(this.socket);
     }
 
-    public joinConf(user: IParticipant, confTheme: string){
-        this.authenticate(this.socket, user, confTheme);
+    public async joinConf(user: IParticipant, confTheme: string){
+        await this.authenticate(this.socket, user, confTheme);
         this.subscriptionsConfig(this.socket, user);
     }
 
@@ -33,18 +33,18 @@ class SocketService {
         this.messages.push(<IMessage> { sender: this.user, text: message, selfMessage: true });
     }
 
-    setOnConnected(socket: any){
-        socket.on(server_events.CONNECTED, (data: any) => {
-            const { confTheme } = data;
-            this.confTheme = confTheme;
-        });
+    async setOnConnected(socket: any){
+        return new Promise(resolve => {
+            socket.on(server_events.CONNECTED, (data: any) => {
+                const { confTheme } = data;
+                this.confTheme = confTheme;
+                resolve();
+            });
+        })
+        
     }
 
     subscriptionsConfig(socket: any, user: IParticipant): void {
-        socket.on(server_events.AUTHENTICATED, (data: any) => {
-            this.onAuthenticated(data);
-        });
-
         socket.on(server_events.PARTICIPANTS_UPDATED, (participiants: any) => {
             this.onParticipantsUpdated(participiants);
         });
@@ -60,9 +60,15 @@ class SocketService {
         });
     }
 
-    authenticate(socket: any, user: IParticipant, confTheme: string){
-        socket.emit(client_events.AUTHENTICATE, { participant: user, confTheme });
-        console.log(user)
+    async authenticate(socket: any, user: IParticipant, confTheme: string){
+        return new Promise( resolve =>{
+            socket.emit(client_events.AUTHENTICATE, { participant: user, confTheme });
+            socket.on(server_events.AUTHENTICATED, (data: any) => {
+                this.onAuthenticated(data);
+                resolve();
+            });
+        })
+        
     }
 
     onAuthenticated(data: any){

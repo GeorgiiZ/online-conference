@@ -1,6 +1,6 @@
 <template>
-    <div :class="['menu', { 'menu--active' : isActivated }]">
-        <div class="menu__icon" @click="isActivated=!isActivated"/>
+    <div class="menu">
+        <div class="menu__icon"/>
         <div class="menu__content">
             <span class="menu__content-header">Участники:</span>
             <div class=menu__content-participants>
@@ -29,7 +29,7 @@ export default class chatMenu extends Vue {
     isActivated: boolean = false;
 
     getAvatarUrl(participant: IParticipant) {
-        const img = participant.isCreator ? 'creator.png' : 'participant3.png';
+        const img = participant.isCreator ? 'creator.png' : 'participant.jpg';
         return require('../../assets/'+ img);
     }
 }
@@ -41,7 +41,7 @@ export default class chatMenu extends Vue {
     .menu {
         position: relative;
 
-        &--active {
+        &:hover {
             opacity: 1;
 
             .menu__icon {
@@ -62,10 +62,6 @@ export default class chatMenu extends Vue {
             opacity: 0.5;
             background-size: contain;
             background-position: center;
-
-            &:hover {
-                opacity: 0.7;
-            }
 
             &:active {
                 opacity: 1;
@@ -125,7 +121,5 @@ export default class chatMenu extends Vue {
                 border-bottom:  #bebebe solid 1px;
             }
         }
-
-        
     }
 </style>
