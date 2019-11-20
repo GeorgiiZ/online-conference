@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p .",
     "serve": "ts-node ./src/index.ts",
-    "test": "ts-node ./src/test-socket.ts"
+    "test": "ts-node ./src/test-socket.ts",
+    "test-server": "ts-node ./src/test.ts"
   },
   "keywords": [],
   "author": "",
