@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { IParticipant, IMessage } from './interfaces';
 import { client_events }  from "./client_events";
 import { server_events } from "./server_events";
+import bodyParser = require('body-parser');
 
 class App {
     app: Application;
@@ -19,13 +20,22 @@ class App {
         this.socketConfig();
     }
 
+    expressConfig(): void{
+        this.app.set('json spaces', 2);
+
+        this.app.use(bodyParser.urlencoded({
+            extended: true
+        }));
+    }
+
     socketConfig(): void {
         this.io.on(client_events.CONNECTION, async (socket: any) => {
-            this.onConnected(socket);
+            console.log(socket)
+            this.throwConnected(socket);
             try {
                 const { participant, confTheme } = <any> await this.authenticate(socket);
                 this.setConfData(participant, confTheme);
-                this.onAuthenticated(socket, participant);
+                this.throwAuthenticated(socket, participant);
                 this.addParticipant(participant, socket);
                 this.socketSubsctiption(socket);
             } catch(err) {
@@ -41,14 +51,13 @@ class App {
         }
     }
 
-    onConnected(socket: any) {
+    throwConnected(socket: any) {
         socket.emit(server_events.CONNECTED, { confTheme: this.confTheme });
     }
 
-    onAuthenticated(socket: any, participant: IParticipant){
+    throwAuthenticated(socket: any, participant: IParticipant){
         socket.emit(server_events.AUTHENTICATED, { participant, confTheme: this.confTheme });
     }
-
 
     async authenticate(socket: any){
         return new Promise( (resolve, reject) => {
