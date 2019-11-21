@@ -5,11 +5,11 @@
                 <div class="entry-content__caption-paragraph">Выберите беседу:</div>
                 <select 
                     class="entry-input" 
-                    v-model="confTheme" 
+                    v-model="confName"
                     required
                 >
                     <option 
-                        v-for="(conference, key) in confList" :key="key"
+                        v-for="(conference, key) in conferences" :key="key"
                         :value="conference"
                     >
                         {{ conference }}
@@ -39,14 +39,14 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 @Component
 export default class modalConfEnter extends Vue{
 
-    @Prop({default: []}) confList: string [];
+    @Prop({default: []}) conferences: string [];
 
     login: string ='';
-    confTheme: string = '';
+    confName: string = '';
 
     modalClosed(): void {
         if(!this.login) return;
-        this.$emit('entered', { login: this.login, confTheme: this.confTheme });
+        this.$emit('entered', { login: this.login, confName: this.confName });
     }
 }
 </script>

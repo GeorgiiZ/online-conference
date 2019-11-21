@@ -4,7 +4,7 @@
             <div
                 class="chat__header-chatname"
             >
-                {{ confTheme }}
+                {{ confName }}
                 <div class="chat__header-online"/>
             </div>
             <chatMenu 
@@ -28,12 +28,12 @@
             <button class="chat__send-button" @click.prevent="sendMessage(inputMessage)"/>
         </div>
         <modalConfCreation 
-            v-if="isCreationOpen" 
+            v-if="isCreationOpen"
             @conf-created="onConfCreated"
         />
         <modalConfEnter 
-            v-if="isEnterOpen" 
-            :confList="confList"
+            v-if="isEnterOpen"
+            :conferences="conferences"
             @entered="onEntered"
         />
     </div>
@@ -58,52 +58,34 @@ import { SocketService } from "@/services/SocketService";
     }
 })
 export default class chatMain extends Vue {
-
     isCreationOpen: boolean = false;
     isEnterOpen: boolean = false;
-
-    confList: string [] = [];
-
+    conferences: string [] = [];
     inputMessage: string = '';
+    socketService: SocketService | null = null;
+    // participant: IParticipant;
+    confName: string = '';
+    messages: IMessage [] = [];
+    participants: IParticipant [] = [];
 
-    socketService: SocketService = null;
 
-    participant: IParticipant = null;
-
-    get confTheme(): string{
-        return this.socketService.confTheme;
-    }
-
-    get messages(): IMessage{
-        return this.socketService.messages;
-    }  
-
-    get participants(): IParticipant [] {
-        return this.socketService.participants;
-    }
 
     sendMessage(message: string){
-        this.socketService.sendMessage(message);
+        this.socketService && this.socketService.sendMessage(message);
         this.inputMessage = '';
     }
 
-    async onConfCreated(creadentials){
-        const { login, confTheme } = creadentials;
-        this.participant = {
-            login, 
-        }
-        await this.socketService.joinConf(this.participant, confTheme);
-        this.onDisconnect();
+    async onConfCreated(creadentials: any){
+        const { login, confName } = creadentials;
+        const participant = <IParticipant> { login }
+        this.confName = await this.socketService.joinConf(participant, confName);
         this.isCreationOpen = false;
     }
 
-    async onEntered(creadentials){
-        const { login, confTheme } = creadentials;
-        this.participant = {
-            login, 
-        }
-        await this.socketService.joinConf(this.participant, confTheme);
-        this.onDisconnect();
+    async onEntered(creadentials: any){
+        const { login, confName } = creadentials;
+        const participant = <IParticipant> { login };
+        this.confName = await this.socketService.joinConf(participant, confName);
         this.isEnterOpen = false;
     }
 
@@ -114,18 +96,20 @@ export default class chatMain extends Vue {
     }
 
     openModal(){
-        if(this.confTheme){
-            this.isEnterOpen = true; 
-            this.confList = [ this.confTheme ];
+        if(this.conferences.length){
+            this.isEnterOpen = true;
         } else {
             this.isCreationOpen = true; 
         }
     }
 
-    async created(){
-        this.socketService = new SocketService("http://localhost:3000");
-        await this.socketService.initConnection();
-        this.openModal();
+    created(){
+        this.socketService = new SocketService(this.messages, this.participants);
+        this.socketService.disconnectCallBack = this.onDisconnect;
+        this.socketService.getConferences().then( res => {
+            this.conferences = res;
+            this.openModal();
+        });
     }
 }
 
