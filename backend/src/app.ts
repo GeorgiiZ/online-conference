@@ -29,6 +29,7 @@ class App {
 
     routes():void {
         this.app.get("/", (req, res) => {
+            console.log(this.io);
             res.send('hello world');
         });
 
@@ -64,7 +65,7 @@ class App {
                 this.setConfData(participants, participant);
                 this.throwAuthenticated(socket, participant, confName.slice(1, confName.length+1));
                 this.addParticipant(participants, participant, io);
-                this.socketSubsctiption(participants, participant, socket, io);
+                this.socketSubsctiption(participants, participant, confName, socket, io);
             } catch(err) {
                 console.log(err)
             }
@@ -100,12 +101,12 @@ class App {
                 .includes(login);
     }
 
-    socketSubsctiption(participants: IParticipant [], participant: IParticipant, socket: any, io: any){
+    socketSubsctiption(participants: IParticipant [], participant: IParticipant, confName: string, socket: any, io: any){
         socket.on(client_events.SEND_MESSAGE, (data: any) => {
             this.broadcastMessage(participant, socket, data);
         })
         socket.on(client_events.DISCONNECT, () => {
-            this.removeParticipant(participants, participant, socket, io);
+            this.removeParticipant(participants, participant, confName, io);
         });
     }
 
@@ -114,19 +115,29 @@ class App {
         this.updateParticipants(participants, io);
     }
 
-    removeParticipant(participants: IParticipant [], participant: IParticipant, socket: any, io: any){
+    removeParticipant(participants: IParticipant [], participant: IParticipant, confName: string, io: any){
         if((<IParticipant> participant).isCreator){
-            this.removeAllParticipants();
+            this.removeAllParticipants(confName);
+            return;
         }
         const itemIndx = participants.indexOf(participant);
         participants.splice(itemIndx, 1);
         this.updateParticipants(participants, io);
     }
 
-    removeAllParticipants(){
-        // [...this.participants.keys()].forEach(socket => socket.disconnect(true));
-        // this.participants.clear();
-        // this.confTheme = '';
+    removeAllParticipants(confName: string) {
+        const conf = this.io.of(confName);
+        const sockets = conf.clients();
+        //sockets.forEach((item: any) => console.log(item));
+
+        conf.clients((error: any, clients: any) => {
+            if (error) throw error;
+            console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+        });
+
+       // sockets.forEach((socket) => socket.disconnect());
+        // conf.sockets.forEach(() => console.log('x'));
+        // this.conferences.delete(confName);
     }
 
     updateParticipants(participants: IParticipant [], io: any){

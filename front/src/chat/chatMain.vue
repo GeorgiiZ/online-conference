@@ -63,12 +63,9 @@ export default class chatMain extends Vue {
     conferences: string [] = [];
     inputMessage: string = '';
     socketService: SocketService | null = null;
-    // participant: IParticipant;
     confName: string = '';
     messages: IMessage [] = [];
     participants: IParticipant [] = [];
-
-
 
     sendMessage(message: string){
         this.socketService && this.socketService.sendMessage(message);
@@ -90,9 +87,8 @@ export default class chatMain extends Vue {
     }
 
     onDisconnect(){
-        this.socketService.onDisconnect(x => {
-            window.location.reload(false); 
-        });
+        console.log("disconnected")
+        // window.location.reload(false);
     }
 
     openModal(){

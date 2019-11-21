@@ -18,8 +18,8 @@
                 <div class="entry-content__caption-paragraph">Придумайте логин:</div>
                 <input 
                     type="text" 
-                    class="entry-input" 
-                    v-model="login" 
+                    class="entry-input"
+                    v-model="login"
                     autocomplete="off" 
                     required
                 />

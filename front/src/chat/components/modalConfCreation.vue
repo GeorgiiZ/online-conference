@@ -115,6 +115,7 @@ export default class modalConfCreation extends Vue{
         font-weight: bold;
         margin-top: 10px;
         width: 100%;
+        flex: 1;
 
         &:focus{
             outline: none;

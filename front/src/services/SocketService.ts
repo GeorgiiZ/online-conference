@@ -27,21 +27,25 @@ class SocketService {
     }
 
     public async createConference(confName: string){
-        this.socket = io(`http://localhost:3000/${ confName }`);
+        const data = querysting.stringify({ confName })
+        await axios.post("/create_conf", data);
     }
 
     public async joinConf(participant: IParticipant, confName: string){
         this.socket = io(`http://localhost:3000/${ confName }`);
-        const { participant: _participant, confName: _confName } = await this.authenticate(this.socket, participant, confName);
-        this.participant = _participant;
+        const {
+            participant: participantRefreshed,
+            confName: confNameRefreshed
+        } = <any> await this.authenticate(this.socket, participant, confName);
+        this.participant = participantRefreshed;
         this.subscriptionsConfig(this.socket);
-        return _confName;
+        return confNameRefreshed;
     }
 
     public sendMessage(message: string){
         if(!message) return;
         this.socket.emit(client_events.SEND_MESSAGE, message);
-        this.messages.push(<IMessage>{ sender: this.participant, text: message, selfMessage: true });
+        this.messages.push(<IMessage> { sender: this.participant, text: message, selfMessage: true });
     }
 
     subscriptionsConfig(socket: any): void {
@@ -66,15 +70,12 @@ class SocketService {
     }
 
     onParticipantsUpdated(participants: IParticipant []){
-        console.log(participants);
         this.participants.splice(0, this.participants.length, ...participants);
-        console.log(this.participants)
     }
 
     onMessageRecive(message: any){
         this.messages.push(<IMessage> Object.assign({}, message, { selfMessage: false }));
     }
-
 }
 
 export { SocketService }
