@@ -7,7 +7,7 @@
     "build": "tsc -p .",
     "serve": "ts-node ./src/index.ts",
     "test": "ts-node ./src/test-socket.ts",
-    "test-server": "ts-node ./src/test.ts"
+    "test-server": "ts-node src/test-server.ts"
   },
   "keywords": [],
   "author": "",

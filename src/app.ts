@@ -8,22 +8,19 @@ import bodyParser = require('body-parser');
 class App {
     app: Application;
     http: Server;
-    io: any; 
-    public participants: Map<any, IParticipant>;
-    public confTheme: string = '';
+    io: any;
+    public conferences: Map<string, IParticipant[]>;
 
     constructor(app: Application, http: Server, io: any) {
         this.app = app;
         this.http = http;
         this.io = io;
-        this.participants = new Map<any, IParticipant>();
-        this.socketConfig();
+        this.conferences = new Map<string, IParticipant[]>();
         this.expressConfig();
     }
 
-    expressConfig(): void{
+    expressConfig(): void {
         this.app.set('json spaces', 2);
-
         this.app.use(bodyParser.urlencoded({
             extended: true
         }));
@@ -35,56 +32,61 @@ class App {
             res.send('hello world');
         });
 
-        this.app.get("/conf_list", (req, res) =>{
-            console.log([ ...this.participants.keys() ]);
-            res.json([ ...this.participants.keys() ]);
+        this.app.get("/conf_list", (req, res) => {
+            const conferences = [...this.conferences.keys()].map(item=> item.slice(1, item.length+1));
+            console.log(conferences);
+            res.json( conferences);
         });
 
         this.app.post("/create_conf", (req, res) =>{
-            console.log(req.body)
-            const { conf } = req.body;
-            this.confTheme = conf;
-            this.io.of(conf);
-            res.json(this.confTheme);
+            const { confName } = req.body;
+            console.log(confName)
+            const newRoom = this.addConference(confName);
+            this.socketConfig(newRoom);
+            res.json(confName);
         });
     }
 
-    socketConfig(): void {
-        this.io.on(client_events.CONNECTION, async (socket: any) => {
-            this.throwConnected(socket);
+    addConference(confName: string){
+        const newConf = this.io.of(confName);
+        this.conferences.set(newConf.name, []);
+        return newConf;
+    }
+
+    socketConfig(io: any): void {
+        io.on(client_events.CONNECTION, async (socket: any) => {
+            console.log('on connected')
             try {
-                const { participant, confTheme } = <any> await this.authenticate(socket);
-                this.setConfData(participant, confTheme);
-                this.throwAuthenticated(socket, participant);
-                this.addParticipant(participant, socket);
-                this.socketSubsctiption(socket);
+                const confName = io.name
+                let participants = <IParticipant []> this.conferences.get(confName);
+                console.log(participants)
+                const { participant } = <any> await this.authenticate(socket, participants);
+                this.setConfData(participants, participant);
+                this.throwAuthenticated(socket, participant, confName.slice(1, confName.length+1));
+                this.addParticipant(participants, participant, io);
+                this.socketSubsctiption(participants, participant, socket, io);
             } catch(err) {
                 console.log(err)
             }
         })
     }
 
-    setConfData(participant: IParticipant, confTheme: string){
-        if(!this.participants.size){
+    setConfData(participants: IParticipant [], participant: IParticipant){
+        if(!participants.length){
             participant.isCreator = true;
-            this.confTheme = confTheme;
         }
     }
 
-    throwConnected(socket: any) {
-        socket.emit(server_events.CONNECTED, { confTheme: this.confTheme });
+    throwAuthenticated(socket: any, participant: IParticipant, confName: string){
+        socket.emit(server_events.AUTHENTICATED, { participant, confName });
     }
 
-    throwAuthenticated(socket: any, participant: IParticipant){
-        socket.emit(server_events.AUTHENTICATED, { participant, confTheme: this.confTheme });
-    }
-
-    async authenticate(socket: any){
+    async authenticate(socket: any, participants: IParticipant []){
         return new Promise( (resolve, reject) => {
             socket.on(client_events.AUTHENTICATE, (data: any)=> {
                 console.log(data)
                 const { participant } = data;
-                if(this.isLoginUnique(participant.login)){
+                if(this.isLoginUnique(participant.login, participants)){
                     resolve(data);
                 }
                 reject('ununique paricipant!');
@@ -92,50 +94,48 @@ class App {
         })
     }
 
-    isLoginUnique(login: string): boolean{
-        return ![...this.participants.values()]
+    isLoginUnique(login: string, participants: IParticipant []): boolean{
+        return ![...participants.values()]
                 .map(x => x.login)
                 .includes(login);
     }
 
-    socketSubsctiption(socket: any){
+    socketSubsctiption(participants: IParticipant [], participant: IParticipant, socket: any, io: any){
         socket.on(client_events.SEND_MESSAGE, (data: any) => {
-            this.broadcastMessage(socket, data);
+            this.broadcastMessage(participant, socket, data);
         })
-
         socket.on(client_events.DISCONNECT, () => {
-            this.removeParticipant(socket);
+            this.removeParticipant(participants, participant, socket, io);
         });
     }
 
-    addParticipant(participant: IParticipant, socket: any){
-        this.participants.set(socket, participant);
-        this.updateParticipants(this.participants);
+    addParticipant(participants: IParticipant [], participant: IParticipant, io: any){
+        participants.push(participant);
+        this.updateParticipants(participants, io);
     }
 
-    removeParticipant(socket: any){
-        const participant = this.participants.get(socket);
-        if((<IParticipant>participant).isCreator){
+    removeParticipant(participants: IParticipant [], participant: IParticipant, socket: any, io: any){
+        if((<IParticipant> participant).isCreator){
             this.removeAllParticipants();
         }
-        this.participants.delete(socket);
-        this.updateParticipants(this.participants);
+        const itemIndx = participants.indexOf(participant);
+        participants.splice(itemIndx, 1);
+        this.updateParticipants(participants, io);
     }
 
     removeAllParticipants(){
-        [...this.participants.keys()].forEach(socket => socket.disconnect(true));
-        this.participants.clear();
-        this.confTheme = '';
+        // [...this.participants.keys()].forEach(socket => socket.disconnect(true));
+        // this.participants.clear();
+        // this.confTheme = '';
     }
 
-    updateParticipants(participants: Map<any, IParticipant>){
+    updateParticipants(participants: IParticipant [], io: any){
         const dat = [ ...participants.values() ];
-        this.io.emit(server_events.PARTICIPANTS_UPDATED,  dat);
+        io.emit(server_events.PARTICIPANTS_UPDATED,  dat);
         console.log(dat);
     }
 
-    broadcastMessage(socket: any, message: string){
-        const sender = this.participants.get(socket);
+    broadcastMessage(sender: IParticipant, socket: any, message: string){
         const messageObj: IMessage = <IMessage>{ sender, text: message };
         socket.broadcast.emit(server_events.RECIVE_MESSAGE, messageObj);
     }

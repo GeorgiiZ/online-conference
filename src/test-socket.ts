@@ -5,7 +5,7 @@ import { server_events } from "./server_events";
 
 var socket = io.connect("http://localhost:3000/test-conf1");
 
-socket.emit(client_events.AUTHENTICATE, { participant: { login: 'Cool_Boy_JO' }, confTheme: 'Some conf' });
+socket.emit(client_events.AUTHENTICATE, { participant: { login: 'Cool_Boy_JO2' }, confTheme: 'Some conf' });
 socket.emit(client_events.SEND_MESSAGE, 'Hiii!');
 
 socket.on(server_events.CONNECTED, (data: any) => {
