@@ -8,10 +8,6 @@ var socket = io.connect("http://localhost:3000/test-conf1");
 socket.emit(client_events.AUTHENTICATE, { participant: { login: 'Cool_Boy_JO2' }, confTheme: 'Some conf' });
 socket.emit(client_events.SEND_MESSAGE, 'Hiii!');
 
-socket.on(server_events.CONNECTED, (data: any) => {
-  console.log(data);
-});
-
 socket.on(server_events.PARTICIPANTS_UPDATED, (data: any) => {
   const participants = data as Map<string, IParticipant>;
   console.log(participants);
