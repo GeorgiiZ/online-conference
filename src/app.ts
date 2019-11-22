@@ -36,15 +36,15 @@ class App {
         this.app.get("/conf_list", (req, res) => {
             const conferences = [...this.conferences.keys()].map(item=> item.slice(1, item.length+1));
             console.log(conferences);
-            res.json( conferences);
+            res.json(conferences);
         });
 
         this.app.post("/create_conf", (req, res) =>{
             const { confName } = req.body;
             console.log(confName)
             const newRoom = this.addConference(confName);
-            this.socketConfig(newRoom);
             res.json(confName);
+            this.socketConfig(newRoom);
         });
     }
 
@@ -60,19 +60,18 @@ class App {
             try {
                 const confName = io.name
                 let participants = <IParticipant []> this.conferences.get(confName);
-                console.log(participants)
-                const { participant } = <any> await this.authenticate(socket, participants);
-                this.setConfData(participants, participant);
+                const participant = <IParticipant> await this.authenticate(socket, participants);
+                this.setParticipantData(participants, participant, io);
                 this.throwAuthenticated(socket, participant, confName.slice(1, confName.length+1));
                 this.addParticipant(participants, participant, io);
-                this.socketSubsctiption(participants, participant, confName, socket, io);
+                this.socketSubsctiption(participants, participant, socket, io);
             } catch(err) {
                 console.log(err)
             }
         })
     }
 
-    setConfData(participants: IParticipant [], participant: IParticipant){
+    setParticipantData(participants: IParticipant [], participant: IParticipant, io: any){
         if(!participants.length){
             participant.isCreator = true;
         }
@@ -88,7 +87,7 @@ class App {
                 console.log(data)
                 const { participant } = data;
                 if(this.isLoginUnique(participant.login, participants)){
-                    resolve(data);
+                    resolve(participant);
                 }
                 reject('ununique paricipant!');
             });
@@ -101,12 +100,12 @@ class App {
                 .includes(login);
     }
 
-    socketSubsctiption(participants: IParticipant [], participant: IParticipant, confName: string, socket: any, io: any){
+    socketSubsctiption(participants: IParticipant [], participant: IParticipant, socket: any, io: any){
         socket.on(client_events.SEND_MESSAGE, (data: any) => {
             this.broadcastMessage(participant, socket, data);
         })
         socket.on(client_events.DISCONNECT, () => {
-            this.removeParticipant(participants, participant, confName, io);
+            this.removeParticipant(participants, participant, io);
         });
     }
 
@@ -115,9 +114,9 @@ class App {
         this.updateParticipants(participants, io);
     }
 
-    removeParticipant(participants: IParticipant [], participant: IParticipant, confName: string, io: any){
+    removeParticipant(participants: IParticipant [], participant: IParticipant, io: any){
         if((<IParticipant> participant).isCreator){
-            this.removeAllParticipants(confName);
+            this.removeAllParticipants(io, participants);
             return;
         }
         const itemIndx = participants.indexOf(participant);
@@ -125,19 +124,15 @@ class App {
         this.updateParticipants(participants, io);
     }
 
-    removeAllParticipants(confName: string) {
-        const conf = this.io.of(confName);
-        const sockets = conf.clients();
-        //sockets.forEach((item: any) => console.log(item));
-
-        conf.clients((error: any, clients: any) => {
+    removeAllParticipants(io: any, participants: IParticipant []) {
+        io.clients((error: any, clients: any) => {
             if (error) throw error;
-            console.log(clients); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+            clients.forEach( (socketId: any) => {
+                io.sockets[socketId] && io.sockets[socketId].disconnect()
+            })
         });
-
-       // sockets.forEach((socket) => socket.disconnect());
-        // conf.sockets.forEach(() => console.log('x'));
-        // this.conferences.delete(confName);
+        participants.length = 0;
+        this.conferences.delete(io.name);
     }
 
     updateParticipants(participants: IParticipant [], io: any){
