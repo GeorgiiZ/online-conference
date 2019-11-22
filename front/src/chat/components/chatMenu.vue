@@ -26,8 +26,6 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 export default class chatMenu extends Vue {
     @Prop() participants:  IParticipant [];
 
-    isActivated: boolean = false;
-
     getAvatarUrl(participant: IParticipant) {
         const img = participant.isCreator ? 'creator.png' : 'participant.jpg';
         return require('../../assets/'+ img);

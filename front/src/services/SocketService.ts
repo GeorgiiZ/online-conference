@@ -4,10 +4,7 @@ import { server_events } from "./server_events";
 import { client_events }  from "./client_events";
 
 import axios from "axios";
-import { AxiosStatic } from "axios"
-
 const querysting = require( "querystring")
-// const axiosStatic:AxiosStatic = axios.default;
 
 class SocketService {
     socket: any;
@@ -26,9 +23,10 @@ class SocketService {
         return  responce.data;
     }
 
-    public async createConference(confName: string){
+    public async createConference(participant: IParticipant, confName: string){
         const data = querysting.stringify({ confName })
         await axios.post("/create_conf", data);
+        return await this.joinConf(participant, confName);
     }
 
     public async joinConf(participant: IParticipant, confName: string){

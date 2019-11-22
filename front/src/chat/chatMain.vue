@@ -29,12 +29,13 @@
         </div>
         <modalConfCreation 
             v-if="isCreationOpen"
-            @conf-created="onConfCreated"
+            @conf-created="onConfCreation"
         />
         <modalConfEnter 
             v-if="isEnterOpen"
             :conferences="conferences"
             @entered="onEntered"
+            @move-creation="onCreationOpen"
         />
     </div>
 </template>
@@ -72,10 +73,10 @@ export default class chatMain extends Vue {
         this.inputMessage = '';
     }
 
-    async onConfCreated(creadentials: any){
+    async onConfCreation(creadentials: any){
         const { login, confName } = creadentials;
         const participant = <IParticipant> { login }
-        this.confName = await this.socketService.joinConf(participant, confName);
+        this.confName = await this.socketService.createConference(participant, confName);
         this.isCreationOpen = false;
     }
 
@@ -86,9 +87,14 @@ export default class chatMain extends Vue {
         this.isEnterOpen = false;
     }
 
+    onCreationOpen(){
+        this.isEnterOpen = false;
+        this.isCreationOpen = true;
+    }
+
     onDisconnect(){
         console.log("disconnected")
-        // window.location.reload(false);
+        window.location.reload(false);
     }
 
     openModal(){
