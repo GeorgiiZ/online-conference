@@ -1,11 +1,11 @@
 import { Application } from 'express';
 import { Server } from 'http';
-import { IParticipant, IMessage } from './interfaces';
-import { client_events }  from "./client_events";
-import { server_events } from "./server_events";
+import { IParticipant, IMessage } from './interfaces/interfaces';
+import { client_events }  from "./socket-event-types/client_events";
+import { server_events } from "./socket-event-types/server_events";
 import bodyParser = require('body-parser');
 
-class App {
+class AppServer {
     app: Application;
     http: Server;
     io: any;
@@ -151,4 +151,4 @@ class App {
     }
 }
 
-export {App}
+export {AppServer}

@@ -1,7 +1,7 @@
-import { IParticipant } from './interfaces';
+import { IParticipant } from './interfaces/interfaces';
 import io from 'socket.io-client';
-import { client_events }  from "./client_events";
-import { server_events } from "./server_events";
+import { client_events }  from "./socket-event-types/client_events";
+import { server_events } from "./socket-event-types/server_events";
 
 var socket = io.connect("http://localhost:3000/test-conf1");
 
