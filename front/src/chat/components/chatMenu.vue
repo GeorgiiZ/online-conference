@@ -13,7 +13,6 @@
                     {{ paricipant.login }}
                 </div>
             </div>
-            
         </div>
     </div>
 </template>

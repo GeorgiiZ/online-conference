@@ -1,18 +1,22 @@
 <template>
-    <div class="message"
-        :class="[ 
-            { 'message_self': message.selfMessage }, 
-            { 'message_outer': !message.selfMessage }, 
-        ]"
-    >
-        <div class="message__content">
-            <div class="message__content-login">{{ message.sender.login }}</div>
-            <div class="message__content-string">
-                {{ message.text }}
+    <div class="messages">
+        <div class="message"
+             v-for="(message, index) in messages" :key="index"
+             :class="[
+                { 'message_self': message.selfMessage },
+                { 'message_outer': !message.selfMessage },
+                { 'message_repeated':  getIsRepeated(index) }
+             ]"
+        >
+            <div class="message__content">
+                <div class="message__content-login">{{ message.sender.login }}</div>
+                <div class="message__content-string">
+                    {{ message.text }}
+                </div>
             </div>
+
+            <img class="message__avatar" :src="getAvatarUrl(message.sender.avatar)"/>
         </div>
-        
-        <img class="message__avatar" :src="getAvatarUrl(message.sender.avatar)"/>
     </div>
 </template>
 
@@ -23,8 +27,13 @@ import { IMessage } from "@/models/interfaces";
 
 @Component({
 })
-export default class chatMessage extends Vue {
-    @Prop() message: IMessage;
+export default class chatMessages extends Vue {
+    @Prop({ default: [] }) messages: IMessage [];
+
+    getIsRepeated(index: number): boolean{
+        if(index === 0) { return }
+        return this.messages[index].sender.login === this.messages[index-1].sender.login
+    }
 
     getAvatarUrl(avatar: string) {
         const img = avatar? avatar : 'default-avatar.jpg';
@@ -35,7 +44,13 @@ export default class chatMessage extends Vue {
 
 <style lang="scss">
 
-
+.messages {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
 
 .message {
     padding: 30px 15px;
@@ -130,6 +145,22 @@ export default class chatMessage extends Vue {
             
             &__avatar{
                 order: 1; 
+            }
+        }
+    }
+
+    &_repeated{
+
+        .message {
+            padding: 10px 50px;
+        }
+        .message {
+            &__content-login {
+                display: none;
+            }
+
+            &__avatar {
+                visibility: hidden;
             }
         }
     }

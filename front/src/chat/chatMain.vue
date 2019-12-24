@@ -13,9 +13,8 @@
             />
         </div>
         <div class="chat__messages">
-            <chatMessage
-                v-for="(message, key) in messages" :key="key"
-                :message="message"
+            <chatMessages
+                :messages="messages"
             />
         </div>
         <div class="chat__send">
@@ -42,7 +41,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import chatMessage from "@/chat/components/chatMessage.vue";
+import chatMessages from "@/chat/components/chatMessages.vue";
 import chatMenu from "@/chat/components/chatMenu.vue";
 import modalConfCreation from "@/chat/components/modalConfCreation.vue";
 import modalConfEnter from "@/chat/components/modalConfEnter.vue";
@@ -52,7 +51,7 @@ import { SocketService } from "@/services/SocketService";
 
 @Component({
     components: {
-        chatMessage,
+        chatMessages,
         chatMenu,
         modalConfCreation,
         modalConfEnter
@@ -156,17 +155,10 @@ export default class chatMain extends Vue {
     }
 
     &__messages {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-        //margin: 25px 0;
         overflow-y: auto;
     }
 
     &__send{
-        // position: fixed;
-        // bottom: 10px;
         margin-top: auto;
         display: flex;
         align-items: center;
