@@ -1,13 +1,16 @@
 <template>
-    <div class="chat">
+    <form
+         @submit.prevent="sendMessage"
+         class="chat"
+    >
         <div class="chat__header">
             <div
-                class="chat__header-chatname"
+                    class="chat__header-chatname"
             >
                 {{ confName }}
                 <div class="chat__header-online"/>
             </div>
-            <chatMenu 
+            <chatMenu
                 class="chat__header-menu"
                 :participants="participants"
             />
@@ -18,25 +21,27 @@
             />
         </div>
         <div class="chat__send">
-            <input 
+            <input
                 v-model="inputMessage"
-                type="text" 
-                class="chat__send-input" 
+                type="text"
+                class="chat__send-input"
                 placeholder="Type your message..."
             />
-            <button class="chat__send-button" @click.prevent="sendMessage(inputMessage)"/>
+            <button class="chat__send-button"
+                @click.prevent="sendMessage(inputMessage)"
+            />
         </div>
-        <modalConfCreation 
-            v-if="isCreationOpen"
-            @conf-created="onConfCreation"
+        <modalConfCreation
+                v-if="isCreationOpen"
+                @conf-created="onConfCreation"
         />
-        <modalConfEnter 
-            v-if="isEnterOpen"
-            :conferences="conferences"
-            @entered="onEntered"
-            @move-creation="onCreationOpen"
+        <modalConfEnter
+                v-if="isEnterOpen"
+                :conferences="conferences"
+                @entered="onEntered"
+                @move-creation="onCreationOpen"
         />
-    </div>
+    </form>
 </template>
 
 <script lang="ts">
@@ -150,12 +155,13 @@ export default class chatMain extends Vue {
         }
 
         &-menu{
-            margin-left: auto; 
+            margin-left: auto;
+            z-index: 2;
         }      
     }
 
     &__messages {
-        overflow-y: auto;
+        overflow-y: hidden;
     }
 
     &__send{

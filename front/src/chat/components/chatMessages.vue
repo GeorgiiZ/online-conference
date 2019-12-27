@@ -1,5 +1,5 @@
 <template>
-    <div class="messages">
+    <div class="messages" ref="el">
         <div class="message"
              v-for="(message, index) in messages" :key="index"
              :class="[
@@ -14,14 +14,13 @@
                     {{ message.text }}
                 </div>
             </div>
-
             <img class="message__avatar" :src="getAvatarUrl(message.sender.avatar)"/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from "vue-property-decorator";
+    import {Vue, Component, Prop, Watch} from "vue-property-decorator";
 import { IMessage } from "@/models/interfaces";
 
 
@@ -30,8 +29,8 @@ import { IMessage } from "@/models/interfaces";
 export default class chatMessages extends Vue {
     @Prop({ default: [] }) messages: IMessage [];
 
-    getIsRepeated(index: number): boolean{
-        if(index === 0) { return }
+    getIsRepeated(index: number): boolean {
+        if(index === 0) { return false }
         return this.messages[index].sender.login === this.messages[index-1].sender.login
     }
 
@@ -39,24 +38,33 @@ export default class chatMessages extends Vue {
         const img = avatar? avatar : 'default-avatar.jpg';
         return require('../../assets/'+ img);
     }
+
+
+
+    @Watch('messages')
+    scrollToEnd() {
+        let scrollContainer = this.$refs.el;
+        // const scrollHeight = container.scrollHeight;
+        // container.scrollTop = scrollHeight;
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        console.log(scrollContainer.scrollTop, scrollContainer.scrollHeight)
+    }
 }
 </script>
 
 <style lang="scss">
 
 .messages {
-    display: flex;
-    flex-direction: column;
     width: 100%;
     height: 100%;
     overflow-y: auto;
 }
 
 .message {
-    padding: 30px 15px;
+    padding: 15px 15px 10px 15px;
     display: flex;
     align-items: flex-start;
-    
+
     &__content {
         display: flex;
         flex-direction: column;
@@ -93,12 +101,17 @@ export default class chatMessages extends Vue {
                 &-string{
                     background-color: #89CFF0;
                     color: white;
-                    box-shadow: 5px 5px 10px  #BEBEBE;
+                    box-shadow: -5px 5px 10px  #BEBEBE;
+                }
+
+                &-login{
+                    position: relative;
 
                     &::after {
+                        z-index: 1;
                         position: absolute;
                         content: "";
-                        top: calc(50% - 12px);
+                        top: calc(50% + 35px);
                         right: -15px;
                         width: 0;
                         height: 0;
@@ -110,7 +123,7 @@ export default class chatMessages extends Vue {
             }
             
             &__avatar{
-                order: 2; 
+                order: 2;
             }
         }
     }
@@ -128,11 +141,16 @@ export default class chatMessages extends Vue {
                     background-color: white;
                     color: grey;
                     box-shadow: 5px 5px 20px  #BEBEBE;
+                }
+
+                &-login {
+                    position: relative;
 
                     &::after {
+                        z-index: 1;
                         position: absolute;
                         content: "";
-                        top: calc(50% - 12px);
+                        top: calc(50% + 30px);
                         left: -15px;
                         width: 0;
                         height: 0;
@@ -150,10 +168,8 @@ export default class chatMessages extends Vue {
     }
 
     &_repeated{
+        padding: 0 15px 10px 15px;
 
-        .message {
-            padding: 10px 50px;
-        }
         .message {
             &__content-login {
                 display: none;
@@ -161,6 +177,10 @@ export default class chatMessages extends Vue {
 
             &__avatar {
                 visibility: hidden;
+            }
+
+            &-string {
+
             }
         }
     }
