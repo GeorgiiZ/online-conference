@@ -39,15 +39,14 @@ export default class chatMessages extends Vue {
         return require('../../assets/'+ img);
     }
 
-
-
-    @Watch('messages')
     scrollToEnd() {
         let scrollContainer = this.$refs.el;
-        // const scrollHeight = container.scrollHeight;
-        // container.scrollTop = scrollHeight;
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        console.log(scrollContainer.scrollTop, scrollContainer.scrollHeight)
+        let hiddenElement = scrollContainer.lastChild;
+        hiddenElement && hiddenElement.scrollIntoView({ block: "end", behavior: "auto" });
+    }
+
+    updated(){
+        this.scrollToEnd();
     }
 }
 </script>
