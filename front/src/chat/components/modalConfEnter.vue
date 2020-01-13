@@ -130,7 +130,7 @@ export default class modalConfEnter extends Vue{
             &__text{
                 background-color: #eee;
                 border : none;
-                padding: 12px 10px;
+                padding: 12px 7px;
                 font-weight: bold;
                 margin-top: 10px;
                 width: 175px;
@@ -139,7 +139,7 @@ export default class modalConfEnter extends Vue{
             &__select{
                 background-color: #eee;
                 border : none;
-                padding: 12px;
+                padding: 12px 7px;
                 font-weight: bold;
                 margin-top: 10px;
                 width: 190px;

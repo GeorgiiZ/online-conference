@@ -30,7 +30,7 @@ class SocketService {
     }
 
     public async joinConf(participant: IParticipant, confName: string){
-        this.socket = io(`http://localhost:3000/${ confName }`);
+        this.socket = io(`/${ confName }`);
         const {
             participant: participantRefreshed,
             confName: confNameRefreshed
