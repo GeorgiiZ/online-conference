@@ -3,9 +3,10 @@ import { Server } from 'http';
 import { IParticipant, IMessage } from './interfaces/interfaces';
 import { client_events }  from "./socket-event-types/client_events";
 import { server_events } from "./socket-event-types/server_events";
-import bodyParser = require('body-parser');
 
-class AppServer {
+const debug = require('debug')('app:ConferenceManager');
+
+class ConferenceManager {
     app: Application;
     http: Server;
     io: any;
@@ -16,36 +17,15 @@ class AppServer {
         this.http = http;
         this.io = io;
         this.conferences = new Map<string, IParticipant[]>();
-        this.expressConfig();
     }
 
-    expressConfig(): void {
-        this.app.set('json spaces', 2);
-        this.app.use(bodyParser.urlencoded({
-            extended: true
-        }));
-        this.routes();
+    public getConferences(){
+        return [...this.conferences.keys()].map(item=> item.slice(1, item.length+1));
     }
 
-    routes():void {
-        this.app.get("/", (req, res) => {
-            console.log(this.io);
-            res.send('hello world');
-        });
-
-        this.app.get("/conf_list", (req, res) => {
-            const conferences = [...this.conferences.keys()].map(item=> item.slice(1, item.length+1));
-            console.log(conferences);
-            res.json(conferences);
-        });
-
-        this.app.post("/create_conf", (req, res) =>{
-            const { confName } = req.body;
-            console.log(confName)
-            const newRoom = this.addConference(confName);
-            res.json(confName);
-            this.socketConfig(newRoom);
-        });
+    public conferenceInit(confName: string){
+        const newRoom = this.addConference(confName);
+        this.socketConfig(newRoom);
     }
 
     addConference(confName: string){
@@ -56,7 +36,7 @@ class AppServer {
 
     socketConfig(io: any): void {
         io.on(client_events.CONNECTION, async (socket: any) => {
-            console.log('on connected')
+            debug('on connected')
             try {
                 const confName = io.name
                 let participants = <IParticipant []> this.conferences.get(confName);
@@ -66,7 +46,7 @@ class AppServer {
                 this.addParticipant(participants, participant, io);
                 this.socketSubsctiption(participants, participant, socket, io);
             } catch(err) {
-                console.log(err)
+                debug(err)
             }
         })
     }
@@ -84,7 +64,7 @@ class AppServer {
     async authenticate(socket: any, participants: IParticipant []){
         return new Promise( (resolve, reject) => {
             socket.on(client_events.AUTHENTICATE, (data: any)=> {
-                console.log(data)
+                debug(data)
                 const { participant } = data;
                 if(this.isLoginUnique(participant.login, participants)){
                     resolve(participant);
@@ -138,17 +118,13 @@ class AppServer {
     updateParticipants(participants: IParticipant [], io: any){
         const dat = [ ...participants.values() ];
         io.emit(server_events.PARTICIPANTS_UPDATED,  dat);
-        console.log(dat);
+        debug(dat);
     }
 
     broadcastMessage(sender: IParticipant, socket: any, message: string){
         const messageObj: IMessage = <IMessage>{ sender, text: message };
         socket.broadcast.emit(server_events.RECIVE_MESSAGE, messageObj);
     }
-
-    public listen(port:number, callback?:(...args: any[]) => void):void{
-        this.http.listen(port, callback);
-    }
 }
 
-export {AppServer}
+export {ConferenceManager}
