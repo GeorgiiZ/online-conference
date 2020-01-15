@@ -80,7 +80,7 @@ class ConferenceManager {
     }
 
     isLoginUnique(login: string, participants: IParticipant []): boolean{
-        return participants && ![...participants.values()]
+        return ![...participants.values()]
                 .map(x => x.login)
                 .includes(login);
     }
