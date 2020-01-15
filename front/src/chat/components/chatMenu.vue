@@ -23,7 +23,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component({})
 export default class chatMenu extends Vue {
-    @Prop() participants:  IParticipant [];
+    @Prop() participants:  IParticipant [] | undefined;
 
     getAvatarUrl(participant: IParticipant) {
         const img = participant.isCreator ? 'creator.png' : 'participant.jpg';

@@ -80,14 +80,14 @@ export default class chatMain extends Vue {
     async onConfCreation(creadentials: any){
         const { login, confName } = creadentials;
         const participant = <IParticipant> { login }
-        this.confName = await this.socketService.createConference(participant, confName);
+        this.confName = await (<any> this.socketService).createConference(participant, confName);
         this.isCreationOpen = false;
     }
 
     async onEntered(creadentials: any){
         const { login, confName } = creadentials;
         const participant = <IParticipant> { login };
-        this.confName = await this.socketService.joinConf(participant, confName);
+        this.confName = await (<any> this.socketService).joinConf(participant, confName);
         this.isEnterOpen = false;
     }
 

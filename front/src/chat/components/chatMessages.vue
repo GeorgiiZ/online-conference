@@ -27,11 +27,11 @@ import { IMessage } from "@/models/interfaces";
 @Component({
 })
 export default class chatMessages extends Vue {
-    @Prop({ default: [] }) messages: IMessage [];
+    @Prop({ default: [] }) messages: IMessage [] | undefined;
 
     getIsRepeated(index: number): boolean {
         if(index === 0) { return false }
-        return this.messages[index].sender.login === this.messages[index-1].sender.login
+        return (<any>this.messages)[index].sender.login === (<any>this.messages)[index-1].sender.login
     }
 
     getAvatarUrl(avatar: string) {
@@ -41,7 +41,7 @@ export default class chatMessages extends Vue {
 
     scrollToEnd() {
         let scrollContainer = this.$refs.el;
-        let hiddenElement = scrollContainer.lastChild;
+        let hiddenElement = (<any>scrollContainer).lastChild;
         hiddenElement && hiddenElement.scrollIntoView({ block: "end", behavior: "auto" });
     }
 

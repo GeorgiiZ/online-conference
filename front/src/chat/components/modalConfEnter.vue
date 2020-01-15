@@ -42,7 +42,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 @Component
 export default class modalConfEnter extends Vue{
 
-    @Prop({default: []}) conferences: string [];
+    @Prop({default: []}) conferences: string [] | undefined;
 
     login: string ='';
     confName: string = '';
