@@ -20,7 +20,7 @@ class ConferenceManager {
     }
 
     public getConferences(){
-        return [...this.conferences.keys()].map(item=> item.slice(1, item.length+1));
+        return [...this.conferences.keys()].map(item => item.slice(1, item.length+1));
     }
 
     public conferenceInit(confName: string){
@@ -41,8 +41,8 @@ class ConferenceManager {
                 const confName = io.name
                 let participants = <IParticipant []> this.conferences.get(confName);
                 const participant = <IParticipant> await this.authenticate(socket, participants);
-                this.setParticipantData(participants, participant, io);
-                this.throwAuthenticated(socket, participant, confName.slice(1, confName.length+1));
+                this.setParticipantData(participants, participant);
+                await this.throwAuthenticated(socket, participant, confName.slice(1, confName.length+1));
                 this.addParticipant(participants, participant, io);
                 this.socketSubsctiption(participants, participant, socket, io);
             } catch(err) {
@@ -51,14 +51,19 @@ class ConferenceManager {
         })
     }
 
-    setParticipantData(participants: IParticipant [], participant: IParticipant, io: any){
+    setParticipantData(participants: IParticipant [], participant: IParticipant){
         if(!participants.length){
             participant.isCreator = true;
         }
     }
 
-    throwAuthenticated(socket: any, participant: IParticipant, confName: string){
+    async throwAuthenticated(socket: any, participant: IParticipant, confName: string){
         socket.emit(server_events.AUTHENTICATED, { participant, confName });
+        return new Promise((resolve, reject) => {
+            socket.on(client_events.CLIENT_INITIALIZED, (data: any) =>{
+                resolve(data);
+            })
+        });
     }
 
     async authenticate(socket: any, participants: IParticipant []){
@@ -75,7 +80,7 @@ class ConferenceManager {
     }
 
     isLoginUnique(login: string, participants: IParticipant []): boolean{
-        return ![...participants.values()]
+        return participants && ![...participants.values()]
                 .map(x => x.login)
                 .includes(login);
     }
@@ -116,7 +121,7 @@ class ConferenceManager {
     }
 
     updateParticipants(participants: IParticipant [], io: any){
-        const dat = [ ...participants.values() ];
+        const dat = participants && [...participants.values()];
         io.emit(server_events.PARTICIPANTS_UPDATED,  dat);
         debug(dat);
     }
@@ -127,4 +132,4 @@ class ConferenceManager {
     }
 }
 
-export {ConferenceManager}
+export { ConferenceManager }

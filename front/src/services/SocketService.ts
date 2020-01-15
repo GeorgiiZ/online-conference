@@ -37,6 +37,7 @@ class SocketService {
         } = <any> await this.authenticate(this.socket, participant, confName);
         this.participant = participantRefreshed;
         this.subscriptionsConfig(this.socket);
+        this.socket.emit(client_events.CLIENT_INITIALIZED, true);
         return confNameRefreshed;
     }
 
@@ -48,9 +49,11 @@ class SocketService {
 
     subscriptionsConfig(socket: any): void {
         socket.on(server_events.PARTICIPANTS_UPDATED, (participants: any) => {
+            console.log({ participants: participants });
             this.onParticipantsUpdated(participants);
         });
         socket.on(server_events.RECIVE_MESSAGE, (message: any) => {
+            console.log(message);
             this.onMessageRecive(message);
         });
         socket.on(client_events.DISCONNECT, (message: any) => {

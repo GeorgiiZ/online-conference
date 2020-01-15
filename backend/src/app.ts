@@ -8,10 +8,11 @@ const io = require('socket.io');
 const morgan = require('morgan');
 const debug = require('debug')('app');
 
-const port = <number>(process.env.PORT || 3000);
+const port = <number>(process.env.PORT || 4000);
 const app: Application = express();
 const server = http.createServer(app);
 
+app.set('port', port);
 app.use(morgan('tiny'))
 app.set('json spaces', 2);
 app.use(bodyParser.urlencoded({
@@ -37,6 +38,6 @@ app.post("/create_conf", (req, res) => {
     res.json(confName);
 });
 
-server.listen(port,() => {
-    debug('Express server listening on port ' + port);
+server.listen(app.get('port'),() => {
+    debug('Express server listening on port ' + app.get('port'));
 });

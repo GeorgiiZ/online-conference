@@ -1,0 +1,6 @@
+{
+  "name": "online-conference",
+  "description": "Conference management app",
+  "repository": "https://github.com/GeorgiiZ/online-conference",
+  "keywords": ["node", "express", "static"]
+}
