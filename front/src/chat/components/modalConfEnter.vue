@@ -60,7 +60,6 @@ export default class modalConfEnter extends Vue{
 
 <style lang="scss">
 
-
     .entry {
         display: flex;
         justify-content: center;

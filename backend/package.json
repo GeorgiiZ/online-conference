@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p .",
-    "serve": "ts-node ./src/index.ts",
-    "test": "ts-node ./src/test-socket.ts",
-    "test1": "ts-node ./src/test-socket.ts",
-    "test-server": "ts-node src/test-server.ts"
+    "start": "set DEBUG=app, app:* & nodemon src/app.ts",
+    "test": "nodemon ./src/test-socket.ts",
+    "test1": "nodemon ./src/test-socket.ts",
+    "test-server": "nodemon src/test-server.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,8 +23,23 @@
     "@types/socket.io-client": "^1.4.32",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
+    "debug": "^4.1.1",
     "express": "^4.17.1",
+    "morgan": "^1.9.1",
+    "nodemon": "^2.0.2",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
+  },
+  "nodemonConfig": {
+    "restartable": "rs",
+    "ignore": [
+      "node_modules/**/node_modules",
+      "src/test*.ts"
+    ],
+    "delay": "2500",
+    "env": {
+      "NODE_ENV": "developement",
+      "PORT": 4000
+    }
   }
 }
