@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -p .",
-    "start": "set DEBUG=app, app:* & nodemon src/app.ts",
+    "start": "set DEBUG=app, app:* & ts-node src/app.ts",
     "test": "nodemon ./src/test-socket.ts",
     "test1": "nodemon ./src/test-socket.ts",
     "test-server": "nodemon src/test-server.ts"
