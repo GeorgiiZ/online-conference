@@ -8,7 +8,7 @@ const port = process.env.PORT || 4000;
 
 var socket = io.connect(`http://localhost:${ port }/test-conf1`);
 
-socket.emit(client_events.AUTHENTICATE, { participant: { login: 'Cool_Boy_JO1' }, confTheme: 'Some conf' });
+socket.emit(client_events.AUTHENTICATE, { participant: { login: 'Cool_Boy_JO2' }, confTheme: 'Some conf' });
 
 socket.emit(client_events.CLIENT_INITIALIZED, "");
 
