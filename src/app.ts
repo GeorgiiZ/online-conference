@@ -11,7 +11,9 @@ const debug = require('debug')('app');
 const port = <number>(process.env.PORT || 4000);
 const app: Application = express();
 const server = http.createServer(app);
+const cors = require('cors');
 
+app.use(cors());
 app.set('port', port);
 app.use(morgan('tiny'))
 app.set('json spaces', 2);

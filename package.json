@@ -26,6 +26,7 @@
     "@types/socket.io-client": "^1.4.32",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "morgan": "^1.9.1",
@@ -42,7 +43,7 @@
     "delay": "0",
     "env": {
       "NODE_ENV": "developement",
-      "PORT": 4000
+      "PORT": 4001
     }
   }
 }
