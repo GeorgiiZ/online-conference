@@ -4,14 +4,15 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "ts:build": "tsc",
-    "build": "npm run ts:build",
+    "ts:build": "postinstall",
+    "build": "tsc",
     "dev:serve": "set DEBUG=app, app:* & nodemon src/app.ts",
     "prod:serve": "node dist/app.js",
-    "start": "npm run build && npm run prod:serve",
+    "start": "npm run prod:serve",
     "test-socket-1": "nodemon ./src/test-socket.ts",
     "test-socket-2": "nodemon ./src/test-socket.ts",
-    "test-server": "nodemon src/test-server.ts"
+    "test-server": "nodemon src/test-server.ts",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
