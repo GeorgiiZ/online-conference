@@ -6,10 +6,7 @@ module.exports = {
     devServer: {
         proxy: {
             '': {
-                target: '/',
-                // process.env.NODE_ENV === 'production'
-                    //     ? 'https://online-conference-heroku.herokuapp.com/'
-                    //     : 'http://localhost:4000/',
+                target: 'http://localhost:4001/',
                 secure: false,
                 changeOrigin: true,
             },

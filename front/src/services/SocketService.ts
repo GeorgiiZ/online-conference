@@ -5,7 +5,7 @@ import { client_events }  from "./client_events";
 
 import axios from "axios";
 const querysting = require( "querystring");
-const baseURL = "https://online-conference-heroku.herokuapp.com";
+const baseURL = process.env.NODE_ENV === 'production' ? "https://online-conference-heroku.herokuapp.com" : "";
 
 class SocketService {
     socket: any;
