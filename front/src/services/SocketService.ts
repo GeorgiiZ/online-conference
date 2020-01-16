@@ -4,7 +4,8 @@ import { server_events } from "./server_events";
 import { client_events }  from "./client_events";
 
 import axios from "axios";
-const querysting = require( "querystring")
+const querysting = require( "querystring");
+const baseURL = "https://online-conference-heroku.herokuapp.com";
 
 class SocketService {
     socket: any;
@@ -19,18 +20,18 @@ class SocketService {
     }
 
     public async getConferences(){
-        const responce = await axios.get('/conf_list');
+        const responce = await axios.get(`${ baseURL }/conf_list`);
         return  responce.data;
     }
 
     public async createConference(participant: IParticipant, confName: string){
         const data = querysting.stringify({ confName })
-        await axios.post("/create_conf", data);
+        await axios.post(`${ baseURL }/create_conf`, data);
         return await this.joinConf(participant, confName);
     }
 
     public async joinConf(participant: IParticipant, confName: string){
-        this.socket = io(`/${ confName }`);
+        this.socket = io(`${ baseURL }/${ confName }`);
         const {
             participant: participantRefreshed,
             confName: confNameRefreshed
