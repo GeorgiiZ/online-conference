@@ -27,10 +27,6 @@ app.get("/", (req, res) => {
     res.send('hello world');
 });
 
-app.get("/huy", (req, res) => {
-    res.send('hello huy!');
-});
-
 app.get("/conf_list", (req, res) => {
     const conferences = conferManager.getConferences();
     debug(conferences);
