@@ -119,4 +119,11 @@ export default class chatMenu extends Vue {
             }
         }
     }
+
+    @media(max-device-width:480px){
+        .menu__content{
+            width: 200px;
+            height: 200px;
+        }
+    }
 </style>

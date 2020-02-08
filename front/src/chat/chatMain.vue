@@ -139,7 +139,8 @@ export default class chatMain extends Vue {
         display: flex;
         flex-direction: column;
         background-color: whitesmoke;
-        padding: 30px 40px;
+        padding: 20px 30px;
+
 
         &__header{
             display: flex;
@@ -198,12 +199,13 @@ export default class chatMain extends Vue {
                 border : none;
                 outline: inherit;
                 border-radius: 50%;
-                width: 55px;
-                height: 55px;
+                width: 70px;
+                height: 70px;
                 margin-right: 20px;
-                background: url("../assets/Layer 13@1X.png") no-repeat;
+                background-image: url("../assets/Layer 13@1X.png");
+                background-repeat: no-repeat;
                 background-position: center;
-                background-size: 2rem;
+                background-size: 2.5rem;
                 background-color: #89CFF0;
                 box-shadow:  5px 5px 20px  #BEBEBE;
 
@@ -244,6 +246,14 @@ export default class chatMain extends Vue {
     @keyframes spin {
         to {
             transform: rotate(360deg);
+        }
+    }
+
+    @media(max-device-width:480px){
+        .chat__send-button{
+            width: 40px;
+            height: 40px;
+            background-size: 1.5rem;
         }
     }
 
